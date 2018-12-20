@@ -1,0 +1,128 @@
+<Schema name="DataWarehouse">
+  <Dimension type="TimeDimension" visible="true" highCardinality="false" name="Time">
+    <Hierarchy name="Time" visible="true" hasAll="true" allMemberName="All" primaryKey="id_tiempo">
+      <Table name="dim_tiempo" schema="public">
+      </Table>
+      <Level name="Year" visible="true" table="dim_tiempo" column="anio" type="Integer" uniqueMembers="false" levelType="TimeYears" hideMemberIf="Never">
+      </Level>
+      <Level name="Semestre" visible="true" table="dim_tiempo" column="semestre_id" type="String" uniqueMembers="false" levelType="TimeHalfYears" hideMemberIf="Never">
+      </Level>
+      <Level name="Cuatrimestre" visible="false" table="dim_tiempo" column="cuatrimestre_id" type="String" uniqueMembers="false" levelType="TimeQuarters" hideMemberIf="Never">
+      </Level>
+      <Level name="Mes" visible="true" table="dim_tiempo" column="mes_id" type="String" uniqueMembers="false" levelType="TimeMonths" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Geografia">
+    <Hierarchy name="Geografia" visible="true" hasAll="true" allMemberName="All" primaryKey="id_geografia">
+      <Table name="dim_geografia" schema="public">
+      </Table>
+      <Level name="Region" visible="true" table="dim_geografia" column="region" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+      <Level name="Coordinacion" visible="true" table="dim_geografia" column="coord" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+      <Level name="Zona" visible="true" table="dim_geografia" column="zona" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Grupo_partida">
+    <Hierarchy name="Grupo_partida" visible="true" hasAll="true" allMemberName="All" primaryKey="grupo_partida_id">
+      <Table name="dim_grupo_partida" schema="public">
+      </Table>
+      <Level name="Grupo" visible="true" table="dim_grupo_partida" column="grupo" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+      <Level name="Partida" visible="true" table="dim_grupo_partida" column="partida" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+      <Level name="codigo_productos" visible="true" table="dim_grupo_partida" column="codigo_producto" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        <Property name="Nombre_producto" column="producto" type="String">
+        </Property>
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Marca_catalogo">
+    <Hierarchy name="Marca_catalogo" visible="true" hasAll="false" allMemberName="All" primaryKey="id_marca_catalago">
+      <Table name="dim_marca_catalogo" schema="public">
+      </Table>
+      <Level name="marca" visible="true" table="dim_marca_catalogo" column="marca_catalogo" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Dimension type="StandardDimension" visible="true" highCardinality="false" name="Categoria">
+    <Hierarchy name="Categoria" visible="true" hasAll="true" allMemberName="All" primaryKey="categ_subcateg_id">
+      <Table name="dim_categ_subcateg" schema="public">
+      </Table>
+      <Level name="categoria" visible="true" table="dim_categ_subcateg" column="categoria" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+      <Level name="subCategoria" visible="true" table="dim_categ_subcateg" column="subcategoria" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+      </Level>
+    </Hierarchy>
+  </Dimension>
+  <Cube name="Cubo_Ventas" visible="true" cache="true" enabled="true">
+    <Table name="fact_ventas" schema="public">
+    </Table>
+    <DimensionUsage source="Time" name="Tiempo" visible="true" foreignKey="id_tiempo_estado" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="Geografia" name="Geografia" visible="true" foreignKey="id_geografia" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="Marca_catalogo" name="Marca_catalogo" visible="true" foreignKey="id_marca_catalogo" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="Categoria" name="Categoria" visible="true" foreignKey="id_categ_subcateg" highCardinality="false">
+    </DimensionUsage>
+    <DimensionUsage source="Grupo_partida" name="Grupo_partida" visible="true" foreignKey="id_grupo_partida" highCardinality="false">
+    </DimensionUsage>
+    <Dimension type="StandardDimension" visible="true" foreignKey="id_cliente" highCardinality="false" name="Cliente">
+      <Hierarchy name="Cliente" visible="true" hasAll="true" allMemberName="All" primaryKey="cliente_id">
+        <Table name="dim_cliente" schema="public">
+        </Table>
+        <Level name="Ramo_cliente" visible="true" table="dim_cliente" column="ramo_cliente" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+          <Property name="codigo_clientes" column="cliente_id_as400" type="String">
+          </Property>
+          <Property name="Nombre" column="cliente2" type="String">
+          </Property>
+        </Level>
+        <Level name="Grupo_cliente" visible="true" table="dim_cliente" column="grupo_cliente" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+        </Level>
+        <Level name="clientes" visible="true" table="dim_cliente" column="cliente2" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+          <Property name="cod_cliente" column="cliente_id_as400" type="String">
+          </Property>
+        </Level>
+      </Hierarchy>
+    </Dimension>
+    <Measure name="Cantidad_Articulos" column="cantidad" datatype="Numeric" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="Precio_Unitario" column="precio_unitario" datatype="Numeric" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="Ventas_Brutas" column="bs_ventas_brutas" datatype="Numeric" aggregator="sum" visible="true">
+    </Measure>
+    <Measure name="Costo_Promedio" column="costo_promedio" datatype="Numeric" aggregator="sum" visible="true">
+    </Measure>
+    <CalculatedMember name="Importe_Bruto" formula="[Measures].[Cantidad_Articulos]*[Measures].[Precio_Unitario]" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="prueba" formula="Iif([Geografia].CurrentMember.Level.Name = &#34;Coordinacion&#34;,Sum([Geografia].[Zona].Members,[Measures].[Ventas_Brutas]),0)" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="%_Ventas_Brutas_X_clientes" formula="(100*[Measures].[Ventas_Brutas])/[Measures].[acumulado_clientes]" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="acumulado_clientes" formula="Iif([Cliente].CurrentMember.Level.Name = &#34;clientes&#34;,Sum([Cliente].[clientes].Members,[Measures].[Ventas_Brutas]),0)" dimension="Measures" visible="false">
+    </CalculatedMember>
+    <CalculatedMember name="acumulado_clientes_art" formula="Iif([Cliente].CurrentMember.Level.Name = &#34;clientes&#34;,Sum([Cliente].[clientes].Members,[Measures].[Cantidad_Articulos]),0)" dimension="Measures" visible="false">
+    </CalculatedMember>
+    <CalculatedMember name="%_Cantidad_Articulos_X_clientes" formula="(100*[Measures].[Cantidad_Articulos])/[Measures].[acumulado_clientes_art]" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="acumulado_ventas_marcas" formula="Iif([Marca_catalogo].CurrentMember.Level.Name = &#34;marca&#34;,Sum([Marca_catalogo].[marca].Members,[Measures].[Ventas_Brutas]),0)" dimension="Measures" visible="false">
+    </CalculatedMember>
+    <CalculatedMember name="%_Ventas_Brutas_X_marcas" formula="(100*[Measures].[Ventas_Brutas])/[Measures].[acumulado_ventas_marcas]" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="acumulado_ventas_subCat" formula="Iif([Categoria].CurrentMember.Level.Name = &#34;subCategoria&#34;,Sum([Categoria].[subCategoria].Members,[Measures].[Ventas_Brutas]),0)" dimension="Measures" visible="false">
+    </CalculatedMember>
+    <CalculatedMember name="%_Ventas_Brutas_X_subCategoria" formula="(100*[Measures].[Ventas_Brutas])/[Measures].[acumulado_ventas_subCat]" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="acumulado_ventas_zona" formula="Iif([Geografia].CurrentMember.Level.Name = &#34;Zona&#34;,Sum([Geografia].[Zona].Members,[Measures].[Ventas_Brutas]),0)" dimension="Measures" visible="false">
+    </CalculatedMember>
+    <CalculatedMember name="%_Ventas_Brutas_X_Zona" formula="(100*[Measures].[Ventas_Brutas])/[Measures].[acumulado_ventas_zona]" dimension="Measures" visible="true">
+    </CalculatedMember>
+    <CalculatedMember name="acumulado_ventas_partida" formula="Iif([Grupo_partida].CurrentMember.Level.Name = &#34;Partida&#34;,Sum([Grupo_partida].[Partida].MEMBERS,[Measures].[Ventas_Brutas]),0)" dimension="Measures" visible="false">
+    </CalculatedMember>
+    <CalculatedMember name="%_Ventas_Brutas_X_Partida" formula="(100*[Measures].[Ventas_Brutas])/[Measures].[acumulado_ventas_partida]" dimension="Measures" visible="true">
+    </CalculatedMember>
+  </Cube>
+</Schema>
